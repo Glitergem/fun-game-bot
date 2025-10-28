@@ -1,6 +1,11 @@
+import os
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Enable logging
 logging.basicConfig(
@@ -9,16 +14,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Bot token from BotFather
-BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"
-BOT_USERNAME = "@fungamehubbot"  # Your bot's username
+# Bot configuration
+BOT_TOKEN = os.getenv('BOT_TOKEN')
+BOT_USERNAME = os.getenv('BOT_USERNAME', '@fungamehubbot')
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message with instructions when the command /start is issued."""
     
     # Create keyboard with username button
     keyboard = [
-        [InlineKeyboardButton("Click here to start the bot!", url=f"https://t.me/{BOT_USERNAME[1:]}?start=start")]
+        [InlineKeyboardButton("🎮 Click here to start the bot! 🎮", url=f"https://t.me/{BOT_USERNAME[1:]}?start=start")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -46,7 +51,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     query = update.callback_query
     
     # Answer the callback query
-    await query.answer()
+    await query.answer("Starting the bot...")
     
     # Send welcome message when button is clicked
     welcome_text = """
@@ -85,8 +90,20 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     
     await update.message.reply_text(help_text, parse_mode='Markdown')
 
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle any message that is not a command."""
+    # If someone sends a regular message, guide them to use /start
+    await update.message.reply_text(
+        "👋 Hello! Use /start to begin using the FunGame Hub Bot!",
+        parse_mode='Markdown'
+    )
+
 def main() -> None:
     """Start the bot."""
+    if not BOT_TOKEN:
+        logger.error("No BOT_TOKEN found in environment variables!")
+        return
+    
     # Create the Application
     application = Application.builder().token(BOT_TOKEN).build()
 
@@ -94,10 +111,14 @@ def main() -> None:
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CallbackQueryHandler(button_handler))
     application.add_handler(CommandHandler("help", help_command))
+    
+    # Add handler for non-command messages
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     # Start the Bot
+    logger.info("Bot is starting...")
     application.run_polling()
-    print("Bot is running...")
+    logger.info("Bot is running!")
 
 if __name__ == '__main__':
     main()
