@@ -5,7 +5,7 @@ import asyncio
 import os
 
 # --- CONFIGURATION ---
-TOKEN = os.getenv("BOT_TOKEN")
+TOKEN = os.getenv("BOT_TOKEN")  # This should be: 8122545395:AAEPRCfDKZquAlgXMcuzLyF78MB9_vU-FJw
 
 # --- SETUP ---
 logging.basicConfig(level=logging.INFO)
@@ -18,7 +18,7 @@ async def force_reset():
         await bot.delete_webhook(drop_pending_updates=True)
         print("✅ Webhook reset successfully")
     except Exception as e:
-        print(f"⚠️  Webhook reset failed: {e}")
+        print(f"⚠️ Webhook reset failed: {e}")
 
 # --- START COMMAND ---
 @dp.message(Command('start'))
@@ -31,11 +31,13 @@ async def send_welcome(message: types.Message):
         "👉 ចុចខាងក្រោមដើម្បីចូលទៅកាន់បូតចម្បង៖"
     )
 
+    # Create button
     button = types.InlineKeyboardButton(
         text="👉 Visit Main Bot 🎯",
         url="https://t.me/faxkh888888888bot"
     )
     
+    # Create keyboard with the button (correct aiogram 3.x syntax)
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=[[button]])
 
     await message.answer(text, parse_mode="Markdown", reply_markup=keyboard)
