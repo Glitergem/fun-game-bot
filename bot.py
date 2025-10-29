@@ -1,11 +1,7 @@
 import os
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 
 # Enable logging
 logging.basicConfig(
@@ -14,16 +10,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Bot configuration
-BOT_TOKEN = os.getenv('BOT_TOKEN')
-BOT_USERNAME = os.getenv('BOT_USERNAME', '@fungamehubbot')
+# Bot configuration - using direct values for testing
+BOT_TOKEN = os.getenv('BOT_TOKEN', '8122545395:AAEPRCfDKZquAlgXMcuzLyF78MB9_vU-FJw')
+BOT_USERNAME = '@fungamehubbot'
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message with instructions when the command /start is issued."""
     
     # Create keyboard with username button
     keyboard = [
-        [InlineKeyboardButton("🎮 Click here to start the bot! 🎮", url=f"https://t.me/{BOT_USERNAME[1:]}?start=start")]
+        [InlineKeyboardButton("🎮 Click here to start the bot! 🎮", url=f"https://t.me/{BOT_USERNAME[1:]}")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -51,7 +47,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     query = update.callback_query
     
     # Answer the callback query
-    await query.answer("Starting the bot...")
+    await query.answer("🎉 Welcome to FunGame Hub!")
     
     # Send welcome message when button is clicked
     welcome_text = """
@@ -100,10 +96,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 def main() -> None:
     """Start the bot."""
-    if not BOT_TOKEN:
-        logger.error("No BOT_TOKEN found in environment variables!")
-        return
-    
     # Create the Application
     application = Application.builder().token(BOT_TOKEN).build()
 
@@ -117,6 +109,8 @@ def main() -> None:
 
     # Start the Bot
     logger.info("Bot is starting...")
+    print("🤖 Bot is starting with token:", BOT_TOKEN[:10] + "...")
+    print("🔗 Bot username:", BOT_USERNAME)
     application.run_polling()
     logger.info("Bot is running!")
 
