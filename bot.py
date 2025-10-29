@@ -1,118 +1,51 @@
-import os
 import logging
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import Command
+import asyncio
+import os
 
-# Enable logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
-logger = logging.getLogger(__name__)
+# --- CONFIGURATION ---
+TOKEN = os.getenv("BOT_TOKEN")
 
-# Bot configuration - using direct values for testing
-BOT_TOKEN = os.getenv('BOT_TOKEN', '8122545395:AAEPRCfDKZquAlgXMcuzLyF78MB9_vU-FJw')
-BOT_USERNAME = '@fungamehubbot'
+# --- SETUP ---
+logging.basicConfig(level=logging.INFO)
+bot = Bot(token=TOKEN)
+dp = Dispatcher()
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message with instructions when the command /start is issued."""
-    
-    # Create keyboard with username button
-    keyboard = [
-        [InlineKeyboardButton("🎮 Click here to start the bot! 🎮", url=f"https://t.me/{BOT_USERNAME[1:]}")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
-    # Welcome message with instructions
-    message_text = f"""
-🎮 **Welcome to FunGame Hub Bot!** 🎮
+# --- FORCE RESET WEBHOOK ---
+async def force_reset():
+    try:
+        await bot.delete_webhook(drop_pending_updates=True)
+        print("✅ Webhook reset successfully")
+    except Exception as e:
+        print(f"⚠️  Webhook reset failed: {e}")
 
-To get started with our amazing games and features, you need to click our username below:
-
-**{BOT_USERNAME}**
-
-Or simply click the button below to properly start the bot and unlock all the fun!
-
-👇 **Click the button below to begin** 👇
-    """
-    
-    await update.message.reply_text(
-        text=message_text,
-        reply_markup=reply_markup,
-        parse_mode='Markdown'
+# --- START COMMAND ---
+@dp.message(Command('start'))
+async def send_welcome(message: types.Message):
+    text = (
+        "👋 សួស្តី! ស្វាគមន៍មកកាន់ **Fun Game Hub** 🎮\n"
+        "នៅទីនេះអ្នកអាចសាកល្បងហ្គេមសប្បាយៗ និងស្វែងយល់អំពីបូតថ្មីៗ។\n\n"
+        "👋 Welcome to **Fun Game Hub!** 🎮\n"
+        "Discover fun mini-games and explore new Telegram bots every day.\n\n"
+        "👉 ចុចខាងក្រោមដើម្បីចូលទៅកាន់បូតចម្បង៖"
     )
 
-async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle the button click."""
-    query = update.callback_query
-    
-    # Answer the callback query
-    await query.answer("🎉 Welcome to FunGame Hub!")
-    
-    # Send welcome message when button is clicked
-    welcome_text = """
-🎉 **Welcome to FunGame Hub Bot!** 🎉
-
-Now that you've properly started the bot, here's what you can do:
-
-🕹️ **Play Games** - Enjoy various fun games
-🏆 **Compete** - Challenge other players  
-📊 **Leaderboards** - See top scores
-🎯 **Daily Challenges** - New games every day
-
-Use /help to see all available commands!
-
-Let the fun begin! 🎮
-    """
-    
-    await query.edit_message_text(
-        text=welcome_text,
-        parse_mode='Markdown'
+    button = types.InlineKeyboardButton(
+        text="👉 Visit Main Bot 🎯",
+        url="https://t.me/faxkh888888888bot"
     )
-
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message when the command /help is issued."""
-    help_text = """
-🤖 **FunGame Hub Bot Commands:**
-
-/start - Start the bot and see instructions
-/help - Show this help message  
-/games - Browse available games
-/profile - View your gaming profile
-/leaderboard - See top players
-
-🎮 **Ready to play? Let's get gaming!**
-    """
     
-    await update.message.reply_text(help_text, parse_mode='Markdown')
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[[button]])
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle any message that is not a command."""
-    # If someone sends a regular message, guide them to use /start
-    await update.message.reply_text(
-        "👋 Hello! Use /start to begin using the FunGame Hub Bot!",
-        parse_mode='Markdown'
-    )
+    await message.answer(text, parse_mode="Markdown", reply_markup=keyboard)
 
-def main() -> None:
-    """Start the bot."""
-    # Create the Application
-    application = Application.builder().token(BOT_TOKEN).build()
-
-    # Add handlers
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CallbackQueryHandler(button_handler))
-    application.add_handler(CommandHandler("help", help_command))
-    
-    # Add handler for non-command messages
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-
-    # Start the Bot
-    logger.info("Bot is starting...")
-    print("🤖 Bot is starting with token:", BOT_TOKEN[:10] + "...")
-    print("🔗 Bot username:", BOT_USERNAME)
-    application.run_polling()
-    logger.info("Bot is running!")
+# --- RUN BOT ---
+async def main():
+    print("🔄 Force resetting webhook...")
+    await force_reset()
+    print("🚀 Starting bot polling...")
+    await dp.start_polling(bot)
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
