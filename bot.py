@@ -14,9 +14,11 @@ logging.basicConfig(level=logging.INFO)
 user_scores = {}
 
 quiz_questions = [
-    {"question": "What is the capital of France?", "options": ["London", "Berlin", "Paris", "Madrid"], "answer": 2},
-    {"question": "Which planet is known as the Red Planet?", "options": ["Venus", "Mars", "Jupiter", "Saturn"], "answer": 1},
-    {"question": "What is 5 + 7?", "options": ["10", "12", "13", "11"], "answer": 1},
+    {"question": "តើរដ្ឋធានីរបស់បារាំងគឺជាអ្វី?", "options": ["ឡុងដ៍", "ប៊ែរឡីន", "ប៉ារីស", "ម៉ាឌ្រីដ"], "answer": 2},
+    {"question": "តើភពណាដែលត្រូវបានគេស្គាល់ថាជាភពក្រហម?", "options": ["ភពសុក្រ", "ភពអង្គារ", "ភពព្រហស្បតិ៍", "ភពសៅរ៍"], "answer": 1},
+    {"question": "តើ ៥ + ៧ ស្មើប៉ុន្មាន?", "options": ["១០", "១២", "១៣", "១១"], "answer": 1},
+    {"question": "តើសត្វអ្វីដែលត្រូវបានគេស្គាល់ថាជាស្តេចព្រៃ?", "options": ["ដំរី", "សិង្ហ", "ខ្លាធំ", "រមាំង"], "answer": 1},
+    {"question": "តើមានទ្វីបប៉ុន្មាន?", "options": ["៥", "៦", "៧", "៨"], "answer": 2}
 ]
 
 # --- START COMMAND ---
@@ -25,17 +27,17 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_scores[user_id] = user_scores.get(user_id, 0)
     
     text = (
-        "👋 Welcome to **Fun Game Hub** 🎮\n\n"
-        "**Available Commands:**\n"
-        "🎯 /start - Show this message\n"
-        "🎮 /games - List all games\n"
-        "🧠 /quiz - Start trivia quiz\n"
-        "🔢 /math - Math challenge\n"
-        "📊 /score - Check your score\n\n"
-        "👉 Or visit our main bot:"
+        "👋 សួស្តី! ស្វាគមន៍មកកាន់ **Fun Game Hub** 🎮\n\n"
+        "**ពាក្យបញ្ជា:**\n"
+        "🎯 /start - បង្ហាញសារស្វាគមន៍\n"
+        "🎮 /games - បង្ហាញហ្គេមទាំងអស់\n"
+        "🧠 /quiz - ចាប់ផ្តើមល្បែងចម្លើយ\n"
+        "🔢 /math - ប្រកួតគណិតវិទ្យា\n"
+        "📊 /score - ពិនិត្យពិន្ទុរបស់អ្នក\n\n"
+        "👉 ឬទស្សនាបូតចម្បងរបស់យើង៖"
     )
 
-    keyboard = [[InlineKeyboardButton("👉 Visit Main Bot 🎯", url="https://t.me/faxkh888888888bot")]]
+    keyboard = [[InlineKeyboardButton("👉 ទស្សនាបូតចម្បង 🎯", url="https://t.me/faxkh888888888bot")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     await update.message.reply_text(text, parse_mode="Markdown", reply_markup=reply_markup)
@@ -43,12 +45,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # --- GAMES LIST ---
 async def games(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = (
-        "🎮 **Available Games:**\n\n"
-        "🧠 **Quiz Game** - Test your knowledge\n"
-        "• Use: /quiz\n\n"
-        "🔢 **Math Challenge** - Solve math problems\n" 
-        "• Use: /math\n\n"
-        "📊 Track your score with /score"
+        "🎮 **ហ្គេមដែលមាន៖**\n\n"
+        "🧠 **ល្បែងចម្លើយ** - សាកល្បងចំណេះដឹងរបស់អ្នក\n"
+        "• ប្រើ: /quiz\n\n"
+        "🔢 **ប្រកួតគណិតវិទ្យា** - ដោះស្រាយបញ្ហាគណិតវិទ្យា\n" 
+        "• ប្រើ: /math\n\n"
+        "📊 តាមដានពិន្ទុរបស់អ្នកជាមួយ /score"
     )
     await update.message.reply_text(text, parse_mode="Markdown")
 
@@ -63,7 +65,7 @@ async def quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard.append([InlineKeyboardButton(option, callback_data=f"answer_{i}")])
     
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text(f"🧠 **Quiz Game**\n\n{question_data['question']}", reply_markup=reply_markup)
+    await update.message.reply_text(f"🧠 **ល្បែងចម្លើយ**\n\n{question_data['question']}", reply_markup=reply_markup)
 
 # --- MATH GAME ---  
 async def math_game(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -74,14 +76,26 @@ async def math_game(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['math_answer'] = answer
     context.user_data['game'] = 'math'
     
-    await update.message.reply_text(f"🔢 **Math Challenge**\n\nWhat is {num1} + {num2}?\n\nReply with your answer!")
+    await update.message.reply_text(f"🔢 **ប្រកួតគណិតវិទ្យា**\n\nតើ {num1} + {num2} ស្មើប៉ុន្មាន?\n\nឆ្លើយតបជាមួយចម្លើយរបស់អ្នក!")
 
 # --- SCORE COMMAND ---
 async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     score = user_scores.get(user_id, 0)
     
-    text = f"📊 **Your Score:** {score} points\n\nKeep playing to earn more points! 🎯"
+    text = f"📊 **ពិន្ទុរបស់អ្នក:** {score} ពិន្ទុ\n\nបន្តលេងដើម្បីរកពិន្ទុបន្ថែម! 🎯"
+    await update.message.reply_text(text, parse_mode="Markdown")
+
+# --- HELP COMMAND ---
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = (
+        "ℹ️ **របៀបលេង:**\n\n"
+        "🎮 ប្រើ /games ដើម្បីមើលហ្គេមទាំងអស់\n"
+        "🧠 /quiz - ចម្លើ�ពហុជម្រើស\n" 
+        "🔢 /math - ដោះស្រាយបញ្ហាគណិតវិទ្យា\n"
+        "📊 /score - ពិនិត្យការរីកលូតលាស់របស់អ្នក\n\n"
+        "**រកពិន្ទុ** សម្រាប់ចម្លើយត្រឹមត្រូវ និងប្រកួតជាមួយមិត្តភក្តិ!"
+    )
     await update.message.reply_text(text, parse_mode="Markdown")
 
 # --- HANDLE CALLBACKS ---
@@ -99,10 +113,10 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if question_data and context.user_data.get('game') == 'quiz':
             if answer_index == question_data["answer"]:
                 user_scores[user_id] = user_scores.get(user_id, 0) + 10
-                await query.edit_message_text(f"✅ **Correct!** 🎉\n\nYou earned 10 points!\n\nYour score: {user_scores[user_id]}\n\nPlay again with /quiz")
+                await query.edit_message_text(f"✅ **ត្រឹមត្រូវ!** 🎉\n\nអ្នកបានរកឃើញ ១០ ពិន្ទុ!\n\nពិន្ទុរបស់អ្នក: {user_scores[user_id]}\n\nលេងម្តងទៀតជាមួយ /quiz")
             else:
                 correct_answer = question_data["options"][question_data["answer"]]
-                await query.edit_message_text(f"❌ **Wrong!**\n\nThe correct answer was: {correct_answer}\n\nTry again with /quiz")
+                await query.edit_message_text(f"❌ **ខុស!**\n\nចម្លើយត្រឹមត្រូវគឺ: {correct_answer}\n\nព្យាយាមម្តងទៀតជាមួយ /quiz")
 
 # --- HANDLE TEXT MESSAGES ---
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -121,11 +135,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             if user_answer == correct_answer:
                 user_scores[user_id] = user_scores.get(user_id, 0) + 10
-                await update.message.reply_text(f"✅ **Correct!** 🎉\n\nYou earned 10 points!\n\nYour score: {user_scores[user_id]}\n\nPlay again with /math")
+                await update.message.reply_text(f"✅ **ត្រឹមត្រូវ!** 🎉\n\nអ្នកបានរកឃើញ ១០ ពិន្ទុ!\n\nពិន្ទុរបស់អ្នក: {user_scores[user_id]}\n\nលេងម្តងទៀតជាមួយ /math")
             else:
-                await update.message.reply_text(f"❌ **Wrong!**\n\nThe correct answer was: {correct_answer}\n\nTry again with /math")
+                await update.message.reply_text(f"❌ **ខុស!**\n\nចម្លើយត្រឹមត្រូវគឺ: {correct_answer}\n\nព្យាយាមម្តងទៀតជាមួយ /math")
         except:
-            await update.message.reply_text("Please enter a valid number!")
+            await update.message.reply_text("សូមបញ្ចូលលេខត្រឹមត្រូវ!")
         
         context.user_data['game'] = None
 
@@ -139,6 +153,7 @@ def main():
     application.add_handler(CommandHandler("quiz", quiz))
     application.add_handler(CommandHandler("math", math_game))
     application.add_handler(CommandHandler("score", score))
+    application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CallbackQueryHandler(handle_callback))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
