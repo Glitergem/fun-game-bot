@@ -1,28 +1,16 @@
 import logging
-from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command
-import asyncio
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, CommandHandler, ContextTypes
 import os
 
 # --- CONFIGURATION ---
-TOKEN = os.getenv("BOT_TOKEN")  # This should be: 8122545395:AAEPRCfDKZquAlgXMcuzLyF78MB9_vU-FJw
+TOKEN = "8122545395:AAEPRCfDKZquAlgXMcuzLyF78MB9_vU-FJw"  # Your bot token
 
 # --- SETUP ---
 logging.basicConfig(level=logging.INFO)
-bot = Bot(token=TOKEN)
-dp = Dispatcher()
-
-# --- FORCE RESET WEBHOOK ---
-async def force_reset():
-    try:
-        await bot.delete_webhook(drop_pending_updates=True)
-        print("✅ Webhook reset successfully")
-    except Exception as e:
-        print(f"⚠️ Webhook reset failed: {e}")
 
 # --- START COMMAND ---
-@dp.message(Command('start'))
-async def send_welcome(message: types.Message):
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     text = (
         "👋 សួស្តី! ស្វាគមន៍មកកាន់ **Fun Game Hub** 🎮\n"
         "នៅទីនេះអ្នកអាចសាកល្បងហ្គេមសប្បាយៗ និងស្វែងយល់អំពីបូតថ្មីៗ។\n\n"
@@ -31,23 +19,18 @@ async def send_welcome(message: types.Message):
         "👉 ចុចខាងក្រោមដើម្បីចូលទៅកាន់បូតចម្បង៖"
     )
 
-    # Create button
-    button = types.InlineKeyboardButton(
-        text="👉 Visit Main Bot 🎯",
-        url="https://t.me/faxkh888888888bot"
-    )
-    
-    # Create keyboard with the button (correct aiogram 3.x syntax)
-    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[[button]])
+    keyboard = [[InlineKeyboardButton("👉 Visit Main Bot 🎯", url="https://t.me/faxkh888888888bot")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
 
-    await message.answer(text, parse_mode="Markdown", reply_markup=keyboard)
+    await update.message.reply_text(text, parse_mode="Markdown", reply_markup=reply_markup)
 
 # --- RUN BOT ---
-async def main():
-    print("🔄 Force resetting webhook...")
-    await force_reset()
-    print("🚀 Starting bot polling...")
-    await dp.start_polling(bot)
+def main():
+    application = Application.builder().token(TOKEN).build()
+    application.add_handler(CommandHandler("start", start))
+    
+    print("Bot is starting...")
+    application.run_polling()
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    main()
