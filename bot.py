@@ -1,59 +1,57 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 
 # ===== CONFIG =====
-TOKEN = "8122545395:AAEPRCfDKZquAlgXMcuzLyF78MB9_vU-FJw"  # Your bridge bot token
-MAIN_BOT_LINK = "https://t.me/faxkh888888888bot"  # Main finance bot link
+TOKEN = "8122545395:AAEPRCfDKZquAlgXMcuzLyF78MB9_vU-FJw"
+MAIN_BOT_LINK = "https://t.me/faxkh888888888bot"
 
 # ===== COMMAND HANDLERS =====
-def start(update: Update, context: CallbackContext):
-    """Send a welcome message with options."""
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """ផ្ញើសារ​ស្វាគមន៍ជាមួយជម្រើស"""
     keyboard = [
-        [InlineKeyboardButton("💡 Learn Finance Tips", callback_data='tips')],
-        [InlineKeyboardButton("🔗 Visit Main Bot (Optional)", url=MAIN_BOT_LINK)]
+        [InlineKeyboardButton("💡 យល់ដឹងអំពីហិរញ្ញវត្ថុ", callback_data='tips')],
+        [InlineKeyboardButton("🔗 ចូលទៅបូតដើម (ជាជម្រើស)", url=MAIN_BOT_LINK)]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text(
-        "Welcome to Finance Helper Bot! 🌟\n\n"
-        "Choose what you want to do:\n"
-        "1️⃣ Learn tips & tricks about managing your money.\n"
-        "2️⃣ Optional: Visit our full Finance Bot for more tools.\n\n"
-        "Click a button below to continue.",
+    await update.message.reply_text(
+        "ស្វាគមន៍មកកាន់បូតជំនួយហិរញ្ញវត្ថុ! 🌟\n\n"
+        "សូមជ្រើសរើសអ្វីដែលអ្នកចង់ធ្វើ៖\n"
+        "1️⃣ យល់ដឹងអំពីចំណេះដឹង និងបច្ចេកទេសគ្រប់គ្រងលុយ។\n"
+        "2️⃣ ជាជម្រើស: ចូលទៅបូតហិរញ្ញវត្ថុដើមសម្រាប់ឧបករណ៍បន្ថែម។\n\n"
+        "ចុចប៊ូតុងខាងក្រោមដើម្បីបន្ត។",
         reply_markup=reply_markup
     )
 
-def button(update: Update, context: CallbackContext):
-    """Handle button presses inside the bot."""
+async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """ដោះសោប៊ូតុង"""
     query = update.callback_query
-    query.answer()
+    await query.answer()
 
     if query.data == 'tips':
         tips = [
-            "💰 Tip 1: Always save at least 10% of your income.",
-            "📊 Tip 2: Track your expenses weekly to spot leaks.",
-            "🏦 Tip 3: Diversify your savings between short-term & long-term goals.",
-            "📈 Tip 4: Avoid high-interest debt whenever possible."
+            "💰 គន្លឹះ ១: តែងតែសន្សំពេលអតិថិជន ១០% នៃចំណូលរបស់អ្នក។",
+            "📊 គន្លឹះ ២: តាមដានចំណាយប្រចាំសប្តាហ៍ដើម្បីរកកន្លែងចំណាយចេញមិនចាំបាច់។",
+            "🏦 គន្លឹះ ៣: ចែកចាយការសន្សំរបស់អ្នករវាងគោលបំណងខ្លី និងវែង។",
+            "📈 គន្លឹះ ៤: គួរជៀសវាងបំណុលដែលមានការប្រាក់ខ្ពស់។"
         ]
         for tip in tips:
-            query.message.reply_text(tip)
+            await query.message.reply_text(tip)
     else:
-        query.message.reply_text("Unknown option.")
+        await query.message.reply_text("ជម្រើសមិនស្គាល់។")
 
-def help_command(update: Update, context: CallbackContext):
-    update.message.reply_text("Use /start to see options.")
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("ប្រើ /start ដើម្បីមើលជម្រើស។")
 
 # ===== MAIN FUNCTION =====
 def main():
-    updater = Updater(TOKEN)
-    dp = updater.dispatcher
+    app = ApplicationBuilder().token(TOKEN).build()
 
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help_command))
-    dp.add_handler(CallbackQueryHandler(button))
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("help", help_command))
+    app.add_handler(CallbackQueryHandler(button))
 
-    print("Bridge bot is running...")
-    updater.start_polling()
-    updater.idle()
+    print("Bridge bot កំពុងដំណើរការ...")
+    app.run_polling()
 
 if __name__ == '__main__':
     main()
