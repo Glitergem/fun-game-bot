@@ -4,7 +4,6 @@ from telegram.ext import (
     CommandHandler,
     CallbackQueryHandler,
     ContextTypes,
-    JobQueue
 )
 import datetime
 import logging
@@ -32,6 +31,7 @@ FINANCE_TIPS = [
 # Track first-time users
 first_time_users = set()
 
+
 # ===== COMMAND HANDLERS =====
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """ផ្ញើសារ​ស្វាគមន៍ជាមួយជម្រើស"""
@@ -48,6 +48,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "ចុចប៊ូតុងខាងក្រោមដើម្បីបន្ត។",
         reply_markup=reply_markup
     )
+
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """ដោះសោប៊ូតុង"""
@@ -67,6 +68,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await query.message.reply_text("ជម្រើសមិនស្គាល់។")
 
+
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "ប្រើ /start ដើម្បីមើលជម្រើស។\n"
@@ -74,27 +76,36 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "🔗 ចូលទៅបូតដើម - ទៅកាន់បូតដើមរបស់យើង"
     )
 
+
 # ===== DAILY TIPS JOB =====
 async def daily_tips(context: ContextTypes.DEFAULT_TYPE):
     for user_id in first_time_users:
         for tip in FINANCE_TIPS:
-            await context.bot.send_message(chat_id=user_id, text=f"💡 ថ្ងៃនេះគន្លឹះហិរញ្ញវត្ថុ:\n{tip}")
+            await context.bot.send_message(
+                chat_id=user_id,
+                text=f"💡 ថ្ងៃនេះគន្លឹះហិរញ្ញវត្ថុ:\n{tip}"
+            )
+
 
 # ===== MAIN FUNCTION =====
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
 
-    # Handlers
+    # Register command and callback handlers
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CallbackQueryHandler(button))
 
-    # Schedule daily tips at 9 AM
-    job_queue: JobQueue = app.job_queue
-    job_queue.run_daily(daily_tips, time=datetime.time(hour=9, minute=0, second=0))
+    # ===== SAFELY ENABLE JOB QUEUE =====
+    if app.job_queue:
+        app.job_queue.run_daily(daily_tips, time=datetime.time(hour=9, minute=0, second=0))
+        print("✅ Daily tip scheduler initialized.")
+    else:
+        print("⚠️ Warning: JobQueue not available. Install PTB with 'job-queue' extra to enable daily tips.")
 
     print("Bridge bot កំពុងដំណើរការ...")
     app.run_polling()
+
 
 if __name__ == '__main__':
     main()
